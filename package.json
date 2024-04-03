@@ -12,8 +12,6 @@
 		"format": "prettier --write ."
 	},
 	"devDependencies": {
-		"@algolia/autocomplete-js": "^1.17.0",
-		"@algolia/autocomplete-theme-classic": "^1.17.0",
 		"@fortawesome/free-brands-svg-icons": "^6.4.2",
 		"@fortawesome/free-regular-svg-icons": "^6.4.2",
 		"@fortawesome/free-solid-svg-icons": "^6.4.2",
