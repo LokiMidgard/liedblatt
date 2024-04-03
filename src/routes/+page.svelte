@@ -64,12 +64,11 @@
 			onclick={() => {
 				elements.splice(i + 1, 0, {
 					type: 'score',
-					lyricsDisplay: [],
+					lyricsDisplay: ['score'],
 					...gotteslob[0],
-					showAuthor: true,
-					showSpeed: true,
+					showAuthor: false,
+					showSpeed: false,
 					showTitle: true,
-					reference: null
 				});
 			}}><Icon icon={scoreIcon} /></button
 		>
