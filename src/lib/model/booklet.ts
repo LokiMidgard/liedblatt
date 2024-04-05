@@ -4,7 +4,7 @@ import type { Wrap } from "abcjs";
 
 
 export type BookElement =
-    ScoreElement | TextElement | PageBreakElement | ImageElement;
+    ScoreElement | SpaceElement | TextElement | PageBreakElement | ImageElement;
 
 export type Book = {
     elements: BookElement[]
@@ -12,9 +12,14 @@ export type Book = {
 };
 
 
+export type SpaceElement = {
+    type: 'space'
+    distance: number,
+};
 export type TextElement = {
     type: 'text'
     text: string,
+    scale: number,
     alignment: 'left' | 'right' | 'center' | 'justify'
 };
 export type PageBreakElement = {

@@ -16,6 +16,12 @@
 
 {#if element}
 	<textarea bind:value={element.text} />
+	<label role="group">
+		<span>Textscalierung</span>
+		<input max="200" min="1" type="number" bind:value={element.scale} />
+		<span>%</span>
+		<input max="200" min="1" type="range" bind:value={element.scale} />
+	</label>
 	<form role="group" style="width: min-content; height: min-content;">
 		<label>
 			<Icon icon={alignLeft} />

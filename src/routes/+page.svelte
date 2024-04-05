@@ -9,6 +9,7 @@
 	import TextEditor from '$lib/controls/textEditor.svelte';
 	import Icon from '$lib/controls/icon.svelte';
 
+	import { definition as spaceIcon } from '@fortawesome/free-solid-svg-icons/faUpDown';
 	import { definition as textIcon } from '@fortawesome/free-solid-svg-icons/faAlignLeft';
 	import { definition as imageIcon } from '@fortawesome/free-solid-svg-icons/faImage';
 	import { definition as scoreIcon } from '@fortawesome/free-solid-svg-icons/faMusic';
@@ -55,8 +56,23 @@
 			aria-label="Text Einfügen"
 			class="outline"
 			onclick={() => {
-				elements.splice(i + 1, 0, { type: 'text', text: '*Neuer Text*', alignment: 'left' });
+				elements.splice(i + 1, 0, {
+					type: 'text',
+					text: '*Neuer Text*',
+					alignment: 'left',
+					scale: 100
+				});
 			}}><Icon icon={textIcon} /></button
+		>
+		<button
+			aria-label="Abstand Einfügen"
+			class="outline"
+			onclick={() => {
+				elements.splice(i + 1, 0, {
+					type: 'space',
+					distance: 10
+				});
+			}}><Icon icon={spaceIcon} /></button
 		>
 		<button
 			aria-label="Lied Einfügen"
@@ -68,7 +84,7 @@
 					...gotteslob[0],
 					showAuthor: false,
 					showSpeed: false,
-					showTitle: true,
+					showTitle: true
 				});
 			}}><Icon icon={scoreIcon} /></button
 		>
@@ -145,6 +161,25 @@
 						Seitenumbruch
 					</header>
 				</article>
+			{:else if element.type == 'space'}
+				<article>
+					<header>
+						<button
+							aria-label="remove"
+							onclick={() => {
+								elements.splice(i, 1);
+							}}
+						></button>
+						Abstand
+					</header>
+					<label role="group">
+						<span>Textscalierung</span>
+						<input max="200" min="1" type="number" bind:value={element.distance} />
+						<span>mm</span>
+						<input max="200" min="1" type="range" bind:value={element.distance} />
+					</label>
+				
+				</article>
 			{:else if elements[i].type == 'image'}
 				<article>
 					<header>
@@ -186,13 +221,18 @@
 			{#each elements as element}
 				{#if element.type == 'score'}
 					<Score score={element} showControls={false} />
+				{:else if element.type == 'space'}
+				<div style="height: {element.distance}mm;" />
 				{:else if element.type == 'text'}
-					<div style="text-align: {element.alignment};">
+					<div
+						class="markdown"
+						style="text-align: {element.alignment}; --font-size-scale: {element.scale};"
+					>
 						{@html marked.parse(element.text)}
 					</div>
 				{:else if element.type == 'image'}
 					{#if element.float}
-						<img
+						<img alt="User defined"
 							src={element.url}
 							style="width: {element.width}%; float: {element.alignment == 'center'
 								? 'none'
@@ -203,7 +243,7 @@
 						/>
 					{:else}
 						<div style="display: grid; ">
-							<img
+							<img alt="User defined"
 								src={element.url}
 								style="width: {element.width}%; justify-self: {element.alignment == 'center'
 									? 'center'

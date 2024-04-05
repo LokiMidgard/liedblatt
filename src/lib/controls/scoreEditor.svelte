@@ -47,6 +47,18 @@
 				// 	console.log('group',{name,currentValue})
 				// 	return undefined;
 				// },
+				render: (item, currentValue, index): HTMLDivElement | undefined => {
+					const option = document.createElement('div');
+					if (item.group) {
+						option.setAttribute('data-group', item.group);
+					}
+					option.innerText = item.label ?? '';
+					option.role = 'option';
+					if (currentValue == item.value) {
+						option.ariaSelected = 'true';
+					}
+					return option;
+				},
 				showOnFocus: true,
 				fetch: (text, update) => {
 					const filterd = items.filter((x) =>
@@ -84,7 +96,15 @@
 
 {#if element}
 	<header>
-		<input class="searchBox" type="search" bind:this={search} bind:value={selectedText} />
+		<input
+			class="searchBox"
+			type="search"
+			onclick={(e) => {
+				e.currentTarget.select();
+			}}
+			bind:this={search}
+			bind:value={selectedText}
+		/>
 
 		<!-- <select onchange={(e) => change(e)} bind:value={selected} class="js-example-basic-single">
 			<optgroup label="Gotteslob">
@@ -266,27 +286,64 @@
 
 <style lang="scss">
 	:global(.scoreSearch) {
-		background-color: var(--pico-background-color);
-
-		// --pico-background-color: var(--pico-form-element-background-color);
-		--pico-border-color: var(--pico-form-element-border-color);
-		--pico-color: var(--pico-form-element-color);
-		--pico-box-shadow: none;
-		border: var(--pico-border-width) solid var(--pico-border-color);
+		display: flex;
+		z-index: 99;
+		position: absolute;
+		left: 0;
+		flex-direction: column;
+		width: 100%;
+		min-width: -moz-fit-content;
+		min-width: fit-content;
+		margin: 0;
+		margin-top: var(--pico-outline-width);
+		padding: 0;
+		border: var(--pico-border-width) solid var(--pico-dropdown-border-color);
 		border-radius: var(--pico-border-radius);
-		outline: 0;
-		background-color: var(--pico-background-color);
-		box-shadow: var(--pico-box-shadow);
-		color: var(--pico-color);
-		font-weight: var(--pico-font-weight);
+		background-color: var(--pico-dropdown-background-color);
+		box-shadow: var(--pico-dropdown-box-shadow);
+		color: var(--pico-dropdown-color);
+		white-space: nowrap;
 		transition:
-			background-color var(--pico-transition),
-			border-color var(--pico-transition),
-			color var(--pico-transition),
-			box-shadow var(--pico-transition);
+			opacity var(--pico-transition),
+			transform 0s ease-in-out 1s;
+
+		:global(*) {
+			padding-left: 1em;
+		}
 
 		:global(.group) {
 			color: var(--pico-muted-color);
+		}
+		:global([role='option']) {
+			cursor: pointer;
+
+			// width: 100%;
+			// margin-bottom: 0;
+			// padding: calc(var(--pico-form-element-spacing-vertical) * 0.5)
+			// 	var(--pico-form-element-spacing-horizontal);
+			// list-style: none;
+
+			font-weight: normal;
+			display: block;
+			min-height: 1.2em;
+			padding: 0px 1em 1px;
+			white-space: nowrap;
+
+			&:first-of-type {
+				margin-top: calc(var(--pico-form-element-spacing-vertical) * 0.5);
+			}
+
+			&:hover {
+				background: var(--pico-form-element-selected-background-color);
+				color: var(--pico-form-element-color);
+			}
+		}
+		:global([data-group]) {
+			padding-left: 2em;
+		}
+		&:not(:has([role='option']:hover)) :global(.selected) {
+			background: var(--pico-form-element-selected-background-color);
+			color: var(--pico-form-element-color);
 		}
 	}
 </style>

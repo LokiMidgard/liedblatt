@@ -2,7 +2,8 @@
 
 
 
- article .close,  article :is(a, button)[aria-label=remove] {
+article .close,
+article :is(a, button)[aria-label=remove] {
     display: block;
     width: 1rem;
     height: 1rem;
@@ -29,20 +30,21 @@
     margin-right: 15mm;
     margin-bottom: 25mm;
     margin-left: 15mm;
+
     @top-center {
         content: element(titleRunning);
     }
 }
 
-article>article{
+article>article {
     border: var(--pico-primary-border) var(--pico-border-width) solid;
-    
+
 }
 
 [role=group]:has(label [role='button']),
 [role=group]:has(button:not([aria-label=remove])),
-[role=group]:has(label[role='button'])
-{
+[role=group]:has(label[role='button']) {
+
     button,
     label {
         --pico-box-shadow: var(--pico-button-box-shadow, 0 0 0 rgba(0, 0, 0, 0));
@@ -64,52 +66,69 @@ article>article{
         -moz-user-select: none;
         user-select: none;
         transition:
-        background-color var(--pico-transition),
-        border-color var(--pico-transition),
-        color var(--pico-transition),
-        box-shadow var(--pico-transition);
-        
+            background-color var(--pico-transition),
+            border-color var(--pico-transition),
+            color var(--pico-transition),
+            box-shadow var(--pico-transition);
+
         --pico-background-color: transparent;
         --pico-color: var(--pico-primary);
         --pico-border-color: var(--pico-primary);
-        &:last-child{
+
+        &:last-child {
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
         }
-        &:first-child{
+
+        &:first-child {
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
         }
-        &:not(:first-child):not(:last-child)
-        {
+
+        &:not(:first-child):not(:last-child) {
             border-radius: 0;
         }
-        &:not(:has(*)){
+
+        &:not(:has(*)) {
             border-color: #01aaff;
         }
+
         &:has(input:checked) {
             --pico-background-color: var(--pico-primary-background);
             --pico-border-color: var(--pico-primary-border);
             --pico-color: var(--pico-primary-inverse);
         }
+
         input {
             display: none;
         }
     }
 }
-    
+
 
 [role=group]:has(input[type=number]):has(input[type=range]) {
-    span{
+    span {
         margin: auto;
         margin-right: 1em;
     }
-    [type=number]{
-        height: fit-content; width: 6em; margin: 0 1em; padding: 0.3em 1em;
+
+    [type=number] {
+        height: fit-content;
+        width: 6em;
+        margin: 0 1em;
+        padding: 0.3em 1em;
     }
-    [type=range]{
+
+    [type=range] {
         margin: auto;
     }
 }
 
+.markdown {
+    --font-size-scale: 1;
 
+    * {
+        font-size: calc(var(--pico-font-size) * var(--font-size-scale) / 100);
+        line-height: calc(var(--pico-line-height) * var(--font-size-scale) / 100);
+    }
+}
