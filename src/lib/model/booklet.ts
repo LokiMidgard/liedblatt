@@ -109,18 +109,13 @@ export function getAbcFormat(element: ScoreData, lyricstUnderNote: number[], lyr
         if ((l) < element.lyrics.length)
             writer.appendLine(`w:${l + 1}.~${element.lyrics[l].replaceAll(/\n/g, ' ')}`);
     }
-    for (const l of lyricstUnderScore) {
-        if ((l) < element.lyrics.length)
-            writer.appendLine(`W:${l + 1}. ${element.lyrics[l].trim()
-                .replaceAll(/~/g, ' ')
-                .replaceAll(/[-_]/g, '').replaceAll(/\n/g, ' ')}`);
-    }
-    // const sub = lyricstUnderScore.map(l => {
-    //     return element.lyrics[l - 1].trim()
-    //         .replaceAll(/~/g, ' ')
-    //         .replaceAll(/[-_]/g, '')
-    // })
-    return [writer.text, []] as const;
+    // for (const l of lyricstUnderScore) {
+    //     if ((l) < element.lyrics.length)
+    //         writer.appendLine(`W:${l + 1}. ${element.lyrics[l].trim()
+    //             .replaceAll(/~/g, ' ')
+    //             .replaceAll(/[-_]/g, '').replaceAll(/\n/g, ' ')}`);
+    // }
+    return [writer.text, lyricstUnderScore.map(l=>element.lyrics[l])] as const;
     //     return `
     // X:1
     // T: ${element.title}
