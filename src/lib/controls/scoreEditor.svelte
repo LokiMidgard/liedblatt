@@ -156,18 +156,145 @@
 			{/each}
 		</div>
 
+		<div role="group">
+			<label>
+				Titel Anzeigen
+				<input type="checkbox" role="switch" bind:checked={element.showTitle} />
+			</label>
+			<label>
+				Author Anzeigen
+				<input type="checkbox" role="switch" bind:checked={element.showAuthor} />
+			</label>
+			<label>
+				Geschwindigkeit Anzeigen
+				<input type="checkbox" role="switch" bind:checked={element.showSpeed} />
+			</label>
+		</div>
 		<label>
-			Titel Anzeigen
-			<input type="checkbox" role="switch" bind:checked={element.showTitle} />
+			Liedtext
+			<div role="group">
+				<label>
+					Schrift
+					<select bind:value={element.font.voice.name}>
+						<option value="'Courier New', Courier, monospace">Courier New</option>
+						<option value="'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif"
+							>Franklin Gothic Medium</option
+						>
+						<option value="'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif"
+							>Gill Sans</option
+						>
+						<option
+							value="'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif"
+							>Lucida Sans</option
+						>
+						<option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Segoe UI</option>
+						<option value="'Times New Roman', Times, serif">Times New Roman</option>
+						<option
+							value="'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif"
+							>Trebuchet MS</option
+						>
+						<option value="Arial, Helvetica, sans-serif">Arial</option>
+						<option value="Cambria, Cochin, Georgia, Times, 'Times New Roman', serif"
+							>Cambria, Cochin</option
+						>
+						<option value="Georgia, 'Times New Roman', Times, serif">Georgia</option>
+						<option value="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif">Impact</option
+						>
+						<option value="Verdana, Geneva, Tahoma, sans-serif">Verdana</option>
+					</select>
+				</label>
+				<label>
+					Schriftgröße
+					<input type="number" bind:value={element.font.voice.size} />
+				</label>
+			</div>
 		</label>
-		<label>
-			Author Anzeigen
-			<input type="checkbox" role="switch" bind:checked={element.showAuthor} />
-		</label>
-		<label>
-			Geschwindigkeit Anzeigen
-			<input type="checkbox" role="switch" bind:checked={element.showSpeed} />
-		</label>
+		{#if element.showAuthor}
+			<label>
+				Komponist
+				<div role="group">
+					<label>
+						Schrift
+						<select bind:value={element.font.composer.name}>
+							<option value="'Courier New', Courier, monospace">Courier New</option>
+							<option value="'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif"
+								>Franklin Gothic Medium</option
+							>
+							<option value="'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif"
+								>Gill Sans</option
+							>
+							<option
+								value="'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif"
+								>Lucida Sans</option
+							>
+							<option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Segoe UI</option>
+							<option value="'Times New Roman', Times, serif">Times New Roman</option>
+							<option
+								value="'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif"
+								>Trebuchet MS</option
+							>
+							<option value="Arial, Helvetica, sans-serif">Arial</option>
+							<option value="Cambria, Cochin, Georgia, Times, 'Times New Roman', serif"
+								>Cambria, Cochin</option
+							>
+							<option value="Georgia, 'Times New Roman', Times, serif">Georgia</option>
+							<option value="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"
+								>Impact</option
+							>
+							<option value="Verdana, Geneva, Tahoma, sans-serif">Verdana</option>
+						</select>
+					</label>
+					<label>
+						Schriftgröße
+						<input type="number" bind:value={element.font.composer.size} />
+					</label>
+				</div>
+			</label>
+		{/if}
+		{#if element.showTitle}
+			<label>
+				Titel
+				<div role="group">
+					<label>
+						Titel
+						<select bind:value={element.font.title.name}>
+							<option value="'Courier New', Courier, monospace">Courier New</option>
+							<option value="'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif"
+								>Franklin Gothic Medium</option
+							>
+							<option value="'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif"
+								>Gill Sans</option
+							>
+							<option
+								value="'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif"
+								>Lucida Sans</option
+							>
+							<option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Segoe UI</option>
+							<option value="'Times New Roman', Times, serif">Times New Roman</option>
+							<option
+								value="'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif"
+								>Trebuchet MS</option
+							>
+							<option value="Arial, Helvetica, sans-serif">Arial</option>
+							<option value="Cambria, Cochin, Georgia, Times, 'Times New Roman', serif"
+								>Cambria, Cochin</option
+							>
+							<option value="Georgia, 'Times New Roman', Times, serif">Georgia</option>
+							<option value="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"
+								>Impact</option
+							>
+							<option value="Verdana, Geneva, Tahoma, sans-serif">Verdana</option>
+						</select>
+					</label>
+					<label>
+						Schriftgröße
+						<input type="number" bind:value={element.font.title.size} />
+					</label>
+				</div>
+			</label>
+		{/if}
+
+	
 
 		{#if element.reference === null}
 			<hr />

@@ -84,7 +84,21 @@
 					...gotteslob[0],
 					showAuthor: false,
 					showSpeed: false,
-					showTitle: true
+					showTitle: true,
+					font: {
+						composer: {
+							name: "'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif",
+							size: 9
+						},
+						voice: {
+							name: "'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif",
+							size: 11
+						},
+						title: {
+							name: "'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif",
+							size: 21
+						},
+					}
 				});
 			}}><Icon icon={scoreIcon} /></button
 		>
@@ -178,7 +192,6 @@
 						<span>mm</span>
 						<input max="200" min="1" type="range" bind:value={element.distance} />
 					</label>
-				
 				</article>
 			{:else if elements[i].type == 'image'}
 				<article>
@@ -222,7 +235,7 @@
 				{#if element.type == 'score'}
 					<Score score={element} showControls={false} />
 				{:else if element.type == 'space'}
-				<div style="height: {element.distance}mm;" />
+					<div style="height: {element.distance}mm;" />
 				{:else if element.type == 'text'}
 					<div
 						class="markdown"
@@ -232,7 +245,8 @@
 					</div>
 				{:else if element.type == 'image'}
 					{#if element.float}
-						<img alt="User defined"
+						<img
+							alt="User defined"
 							src={element.url}
 							style="width: {element.width}%; float: {element.alignment == 'center'
 								? 'none'
@@ -243,7 +257,8 @@
 						/>
 					{:else}
 						<div style="display: grid; ">
-							<img alt="User defined"
+							<img
+								alt="User defined"
 								src={element.url}
 								style="width: {element.width}%; justify-self: {element.alignment == 'center'
 									? 'center'

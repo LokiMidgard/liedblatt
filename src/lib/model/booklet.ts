@@ -58,6 +58,11 @@ export type ScoreData = {
 }
 export type ScoreElement = {
     type: 'score'
+    font:{
+        title: {name:string, size:number}
+        voice: {name:string, size:number}
+        composer: {name:string, size:number}
+    },
     lyricsDisplay: ('score' | 'below' | undefined)[],
     showTitle: boolean,
     showSpeed: boolean,
@@ -115,7 +120,7 @@ export function getAbcFormat(element: ScoreData, lyricstUnderNote: number[], lyr
     //             .replaceAll(/~/g, ' ')
     //             .replaceAll(/[-_]/g, '').replaceAll(/\n/g, ' ')}`);
     // }
-    return [writer.text, lyricstUnderScore.map(l=>element.lyrics[l])] as const;
+    return [writer.text, lyricstUnderScore.map(l=>element.lyrics[l]).filter(x=>x)] as const;
     //     return `
     // X:1
     // T: ${element.title}

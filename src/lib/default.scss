@@ -126,8 +126,7 @@ article>article {
 
 .markdown {
     --font-size-scale: 1;
-
-    * {
+     * {
         font-size: calc(var(--pico-font-size) * var(--font-size-scale) / 100);
         line-height: calc(var(--pico-line-height) * var(--font-size-scale) / 100);
     }

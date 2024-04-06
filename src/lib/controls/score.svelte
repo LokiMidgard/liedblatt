@@ -51,12 +51,18 @@
 				staffwidth: 400,
 				wrap: score.linesettings,
 				scale: score.scale,
-				oneSvgPerLine: true
+				oneSvgPerLine: true,
+				format: {
+					vocalfont: `${score.font.voice.name} ${11}pt`,
+					titlefont: `${score.font.title.name} ${score.font.title.size}`,
+					composerfont: `${score.font.composer.name} ${score.font.composer.size}`
+				}
 			});
 
-			const notesPerLine = tune[0].lines.map(
-				(x) => x.staff?.[0].voices?.[0].filter((x) => x.el_type == 'note').length
-			);
+			const notesPerLine = tune[0].lines
+				.map((x) => x.staff?.[0].voices?.[0].filter((x) => x.el_type == 'note').length ?? 0)
+				.map((x, i, a) => x + a.filter((x, i2) => i2 < i).reduce((p, c) => p + c, 0));
+
 			console.log('line braks', notesPerLine);
 			subText = lyrics.map((l, i) => {
 				const text = [...walkLyrics(l)].reduce((p, c, i) => {
@@ -83,8 +89,16 @@
 	});
 </script>
 
-<div class="contaner" bind:this={scoreElement}></div>
-<ol>
+<div
+	class="contaner"
+	style="--font-size-scale: {score.scale}; --font-famaly: {score.font.voice
+		.name}; --font-size: {score.font.voice.size}"
+	bind:this={scoreElement}
+></div>
+<ol
+	style="--font-size-scale: {score.scale}; --font-famaly: {score.font.voice
+		.name}; --font-size: {score.font.voice.size}"
+>
 	{#each subText as [t, i]}
 		<li value={i}>{t}</li>
 	{/each}
@@ -106,5 +120,40 @@
 	.score {
 		height: unset !important;
 		overflow: unset !important;
+	}
+
+	.contaner{
+		--font-size-scale: 1;
+		font-family: var(--font-famaly);
+	
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+
+
+		:global(text[data-name='lyric']) {
+			--pico-font-size: calc(var(--font-size) * 1pt);
+			font-size: calc(var(--pico-font-size) * var(--font-size-scale));
+		}
+	}
+
+	ol {
+		margin-top: 1em;
+		--font-size-scale: 1;
+		font-family: var(--font-famaly);
+		* {
+			--pico-font-size: calc(var(--font-size) * 1pt);
+			font-size: calc(var(--pico-font-size) * var(--font-size-scale));
+			line-height: calc(var(--pico-line-height) * var(--font-size-scale));
+		}
 	}
 </style>
