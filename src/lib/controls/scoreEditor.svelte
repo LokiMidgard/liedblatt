@@ -1,8 +1,17 @@
 <script lang="ts">
 	import type { BookElement, ScoreData, ScoreElement, ScoreReference } from '$lib/model/booklet';
-	import { findScore, getTitle, gotteslob } from '$lib/model/scores';
+	import { sources } from '$lib/model/booklet';
+	import {
+		findScore,
+		getTitle,
+		gotteslob,
+		newScore,
+		scores,
+		storScore
+	} from '$lib/model/scores.svelte';
 	import { onMount } from 'svelte';
 	import Score from './score.svelte';
+	import { v4 as uuidv4 } from 'uuid';
 
 	import autocomplete, { type AutocompleteItem } from 'autocompleter';
 
@@ -14,26 +23,25 @@
 
 	function updateText() {
 		if (selected) {
-			const parsed = JSON.parse(selected) as ScoreReference | undefined;
+			const parsed = JSON.parse(selected) as ScoreReference | string | undefined;
 			const song = findScore(parsed);
 			if (song) {
 				selectedText = getTitle(song);
 			} else {
-				selectedText = 'Eigenes Lied';
+				selectedText = 'Lied nicht gefunden';
 			}
 		} else {
-			selectedText = 'Eigenes Lied';
+			selectedText = 'Lied Nicht gefunden';
 		}
 	}
 
-	const items = [
-		...gotteslob.map((x) => ({
-			value: JSON.stringify(x.reference),
+	const items = $derived(
+		scores.map((x) => ({
+			value: JSON.stringify(x.reference ?? x.id),
 			label: getTitle(x),
-			group: 'Gotteslob (2003)'
-		})),
-		{ value: null, label: 'Eigenes Lied', group: undefined }
-	];
+			group: x.reference?.source ?? 'Sonstiges'
+		}))
+	);
 
 	$effect(() => {
 		if (search) {
@@ -66,7 +74,15 @@
 					);
 					console.log('mo', filterd);
 					update(
-						items.filter((x) => x.label?.toLocaleLowerCase()?.includes(text.toLocaleLowerCase()))
+						items
+							.filter((x) => x.label?.toLocaleLowerCase()?.includes(text.toLocaleLowerCase()))
+							.sort((a, b) => {
+								const groupDiff = a.group.localeCompare(b.group);
+								if (groupDiff == 0) {
+									return a.label.localeCompare(b.label);
+								}
+								return groupDiff;
+							})
 					);
 				},
 				onSelect: (item) => {
@@ -77,7 +93,9 @@
 						const referecne =
 							selected === null ? null : (JSON.parse(selected) as ScoreReference | null);
 						const source = findScore(referecne);
-						element = { ...element, reference: null, ...(source ?? {}) };
+						if (source) {
+							element = { ...element, id: undefined, ...(source ?? {}) };
+						}
 					}
 				}
 			});
@@ -86,10 +104,16 @@
 
 	onMount(() => {});
 	$effect(() => {
-		if (element?.reference) {
+		const c = element;
+		if (element?.id) {
+			selected = JSON.stringify(element.id);
+		} else if (element?.reference) {
 			selected = JSON.stringify(element.reference);
 		}
 		updateText();
+		if (c?.id != undefined) {
+			storScore(c);
+		}
 		// if (element?.element.type == 'score') selected = element.element ScoreDataent;
 	});
 </script>
@@ -105,7 +129,12 @@
 			bind:this={search}
 			bind:value={selectedText}
 		/>
-
+		<a
+			href="#"
+			onclick={() => {
+				element = newScore(element);
+			}}>Neues Lied eingeben</a
+		>
 		<!-- <select onchange={(e) => change(e)} bind:value={selected} class="js-example-basic-single">
 			<optgroup label="Gotteslob">
 				{#each gotteslob as entry}
@@ -156,6 +185,35 @@
 			{/each}
 		</div>
 
+
+		<details open>
+			<summary>Noten Layout</summary>
+			<label>
+				Gesammtbreite
+				<input type="number" bind:value={element.width} />
+			</label>
+			<label>
+				Bevorzugte Takte pro Zeile
+				<input type="number" bind:value={element.linesettings.preferredMeasuresPerLine} />
+			</label>
+			<!-- <label>
+				Bevorzugte Takte pro Zeile Limt?
+				<input type="number" bind:value={element.linesettings.lastLineLimit} />
+			</label> -->
+			<label>
+				Minimaler Noten abstand
+				<input type="number" step="0.1" bind:value={element.linesettings.minSpacing} />
+			</label>
+			<label>
+				Maximaler Noten abstand
+				<input type="number" step="0.1" bind:value={element.linesettings.maxSpacing} />
+			</label>
+			<!-- <label>
+				Minimaler Abstand Limit
+				<input type="number" step="0.1" bind:value={element.linesettings.minSpacingLimit} />
+			</label> -->
+		</details>
+
 		<div role="group">
 			<label>
 				Titel Anzeigen
@@ -170,8 +228,8 @@
 				<input type="checkbox" role="switch" bind:checked={element.showSpeed} />
 			</label>
 		</div>
-		<label>
-			Liedtext
+		<details>
+			<summary> Liedtext Darstellung</summary>
 			<div role="group">
 				<label>
 					Schrift
@@ -208,10 +266,10 @@
 					<input type="number" bind:value={element.font.voice.size} />
 				</label>
 			</div>
-		</label>
+		</details>
 		{#if element.showAuthor}
-			<label>
-				Komponist
+			<details>
+				<summary> Komponist Darstellung</summary>
 				<div role="group">
 					<label>
 						Schrift
@@ -249,11 +307,11 @@
 						<input type="number" bind:value={element.font.composer.size} />
 					</label>
 				</div>
-			</label>
+			</details>
 		{/if}
 		{#if element.showTitle}
-			<label>
-				Titel
+			<details>
+				<summary> Titel Darstellung </summary>
 				<div role="group">
 					<label>
 						Titel
@@ -291,12 +349,10 @@
 						<input type="number" bind:value={element.font.title.size} />
 					</label>
 				</div>
-			</label>
+			</details>
 		{/if}
 
-	
-
-		{#if element.reference === null}
+		{#if element.id}
 			<hr />
 			<strong>Eigenes Lied</strong>
 			<label>
@@ -333,6 +389,43 @@
 					onclick={() => {
 						if (element) element.author = { music: '', text: '' };
 					}}>Autor Hinzufügen</a
+				>
+			{/if}
+			{#if element.reference}
+				<article>
+					<header>
+						Referenz
+
+						<button
+							aria-label="remove"
+							style="float: right;"
+							onclick={() => {
+								if (element) element.reference = null;
+							}}
+						></button>
+					</header>
+					<div role="group">
+						<label>
+							Musik
+
+							<select bind:value={element.reference.source}>
+								{#each sources as s}
+									<option value={s}>{s}</option>
+								{/each}
+							</select>
+						</label>
+						<label>
+							Text
+							<input type="number" bind:value={element.reference.no} />
+						</label>
+					</div>
+				</article>
+			{:else}
+				<a
+					href="#"
+					onclick={() => {
+						if (element) element.reference = { source: 'Unterwegs', no: 0 };
+					}}>Referenz Hinzufügen</a
 				>
 			{/if}
 			<label>

@@ -7,8 +7,9 @@ export type BookElement =
     ScoreElement | SpaceElement | TextElement | PageBreakElement | ImageElement;
 
 export type Book = {
+    id: string,
     elements: BookElement[]
-    style: {}
+    title: string,
 };
 
 
@@ -35,12 +36,15 @@ export type ImageElement = {
     alignment: 'left' | 'right' | 'center',
 };
 
+export const sources = ['Gotteslob (2003)' , 'Unterwegs'] as const;
+
 export type ScoreReference = {
-    source: 'Gotteslob (2003)' | 'Unterwegs';
+    source: typeof sources[number];
     no: number;
 };
 
 export type ScoreData = {
+    id?:string,
     lyrics: string[],
     title: string,
     reference: ScoreReference | null
@@ -49,6 +53,7 @@ export type ScoreData = {
         music: string,
     } | undefined,
     abc: string,
+    width:number,
     scale: number,
     linesettings: Wrap
     timing: [number, number],
@@ -58,10 +63,10 @@ export type ScoreData = {
 }
 export type ScoreElement = {
     type: 'score'
-    font:{
-        title: {name:string, size:number}
-        voice: {name:string, size:number}
-        composer: {name:string, size:number}
+    font: {
+        title: { name: string, size: number }
+        voice: { name: string, size: number }
+        composer: { name: string, size: number }
     },
     lyricsDisplay: ('score' | 'below' | undefined)[],
     showTitle: boolean,
@@ -120,7 +125,7 @@ export function getAbcFormat(element: ScoreData, lyricstUnderNote: number[], lyr
     //             .replaceAll(/~/g, ' ')
     //             .replaceAll(/[-_]/g, '').replaceAll(/\n/g, ' ')}`);
     // }
-    return [writer.text, lyricstUnderScore.map(l=>element.lyrics[l]).filter(x=>x)] as const;
+    return [writer.text, lyricstUnderScore.map(l => element.lyrics[l]).filter(x => x)] as const;
     //     return `
     // X:1
     // T: ${element.title}

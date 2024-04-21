@@ -3,67 +3,67 @@
 	import { doPaged } from '$lib/paged';
 	import { browser } from '$app/environment';
 
-	let { source }: { source: HTMLElement } = $props();
+	let { source, size }: { source: HTMLElement; size: 'A5' | 'A4' } = $props();
 
-	const style = `div.printHolder {
-  color: black;
-  background-color: var(--background);
-    margin: 0 auto 0 auto;
-
-}
-
-@page {
-  size: A5;
-  margin-top: 15mm;
-  margin-right: 15mm;
-  margin-bottom: 25mm;
-  margin-left: 15mm;
-  @top-center {
-    content: element(titleRunning);
+	const defaultStyle = () => `div.printHolder {
+    color: black;
+    background-color: var(--background);
+      margin: 0 auto 0 auto;
+  
   }
-}
-.abcjs-inner,
-.score {
-  height: unset !important;
-  overflow: unset !important;
-}
-.pagebreak {
-		break-before: page;
-	}
-.abcjs-inner > div {
-  background-color: red;
-//   break-inside: avoid-page;
-}
-
-@media screen {
-  :root {
-    --screen-pages-spacing: 10rem;
-    --color-paper: white;
-    --background: lightgray;
-    --muted-color: #dfdfdf;
-    --background-color: white;
+  
+  @page {
+    size: ${size ?? 'A5'};
+    margin-top: 15mm;
+    margin-right: 15mm;
+    margin-bottom: 25mm;
+    margin-left: 15mm;
+    @top-center {
+      content: element(titleRunning);
+    }
   }
-  .pagedjs_pages {
-    display: flex;
-    flex: 0;
-    flex-wrap: wrap;
-    margin: 0 auto;
-    margin-top: var(--screen-pages-spacing);
+  .abcjs-inner,
+  .score {
+    height: unset !important;
+    overflow: unset !important;
   }
-  .pagedjs_page {
-    background: var(--color-paper);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6), inset 0 0 3px rgba(0, 0, 0, 0.6);
-    flex-shrink: 0;
-    flex-grow: 0;
-    margin: auto auto var(--screen-pages-spacing) auto;
+  .pagebreak {
+          break-before: page;
+      }
+  .abcjs-inner > div {
+    background-color: red;
+  //   break-inside: avoid-page;
   }
-}
-
-
-
-
-
-`;
+  
+  @media screen {
+    :root {
+      --screen-pages-spacing: 10rem;
+      --color-paper: white;
+      --background: lightgray;
+      --muted-color: #dfdfdf;
+      --background-color: white;
+    }
+    .pagedjs_pages {
+      display: flex;
+      flex: 0;
+      flex-wrap: wrap;
+      margin: 0 auto;
+      margin-top: var(--screen-pages-spacing);
+    }
+    .pagedjs_page {
+      background: var(--color-paper);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6), inset 0 0 3px rgba(0, 0, 0, 0.6);
+      flex-shrink: 0;
+      flex-grow: 0;
+      margin: auto auto var(--screen-pages-spacing) auto;
+    }
+  }
+  
+  
+  
+  
+  
+  `;
 
 	let counter = 0;
 	let target: HTMLElement[] = [];
@@ -121,7 +121,7 @@
 			});
 
 			try {
-				await doPaged(source?.innerHTML!, target[nextTarget], style);
+				await doPaged(source?.innerHTML!, target[nextTarget], defaultStyle());
 			} catch (error) {
 				console.error(error);
 				setTimeout(() => {

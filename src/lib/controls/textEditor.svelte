@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { BookElement, ScoreData, TextElement, ScoreReference } from '$lib/model/booklet';
-	import { findScore, getTitle, gotteslob } from '$lib/model/scores';
+	import { findScore, getTitle, gotteslob } from '$lib/model/scores.svelte';
 	import Score from './score.svelte';
 
 	import { definition as alignCenter } from '@fortawesome/free-solid-svg-icons/faAlignCenter';

@@ -2,13 +2,24 @@
 	import '$lib/default.scss';
 	import Score from '$lib/controls/score.svelte';
 	import Print from '$lib/controls/print.svelte';
+	import { inflate } from 'pako';
+
 	import type { Book, BookElement, ScoreData } from '$lib/model/booklet';
+	import * as base64 from 'base64-uint8';
+
 	import ScoreEditor from '$lib/controls/scoreEditor.svelte';
-	import { gotteslob } from '$lib/model/scores';
+	import {
+		findScore,
+		getTitle,
+		gotteslob,
+		init,
+		newScore,
+		storScore
+	} from '$lib/model/scores.svelte';
 	import { marked } from 'marked';
 	import TextEditor from '$lib/controls/textEditor.svelte';
 	import Icon from '$lib/controls/icon.svelte';
-
+	import { v4 as uuidv4 } from 'uuid';
 	import { definition as spaceIcon } from '@fortawesome/free-solid-svg-icons/faUpDown';
 	import { definition as textIcon } from '@fortawesome/free-solid-svg-icons/faAlignLeft';
 	import { definition as imageIcon } from '@fortawesome/free-solid-svg-icons/faImage';
@@ -22,30 +33,103 @@
 	import ImageEditor from '$lib/controls/imageEditor.svelte';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
+	import { goto, onNavigate } from '$app/navigation';
 
 	let source: HTMLElement | undefined = $state();
 
-	let book: Book = $state({ elements: [], style: {} });
+	const newBook = () => ({
+		id: uuidv4(),
+		elements: [],
+		title: 'TBD'
+	});
+
+	let book: Book = $state(newBook());
 
 	let elements = $derived(book?.elements ?? []);
-
+	let allBooks = $state([] as { id: string; title: string }[]);
 	onMount(() => {
-		const data = window.localStorage.getItem('book');
-		if (data)
-			book = JSON.parse(data) ?? {
-				elements: [],
-				style: {}
-			};
-		else {
-			book = {
-				elements: [],
-				style: {}
-			};
+		init();
+		loadAllBooks();
+		loadCurrentId();
+		testForScores($page.url);
+	});
+
+	function loadAllBooks() {
+		const storageLength = window.localStorage.length;
+		allBooks = Array.from({ length: storageLength })
+			.map((x, i) => window.localStorage.key(i))
+			.filter((x): x is string => {
+				return x?.startsWith('book-') ?? false;
+			})
+			.map((x) => {
+				const data = JSON.parse(window.localStorage.getItem(x)!) as Book;
+				return { title: data?.title, id: data.id };
+			})
+			.filter((x) => x.id != undefined && x.title != undefined);
+	}
+	onNavigate(async (e) => {
+		if (e.to?.url) {
+			testForScores(e.to?.url);
 		}
 	});
 
+	function testForScores(url: URL) {
+		console.log('test for Score');
+		const score = url.searchParams.get('score');
+		if (score) {
+			console.log('loading Score');
+			const decodede = decodeURIComponent(score)
+			const data = base64.decode(decodede);
+			const ziped = inflate(data, { to: 'string' });
+
+			const parsed = JSON.parse(ziped) as ScoreData & Required<Pick<ScoreData, 'id'>>;
+			if (parsed.id) {
+				const alreadyExists = storScore(parsed, false);
+				if (alreadyExists) {
+					const currentScore = findScore(parsed.id) as ScoreData & Required<Pick<ScoreData, 'id'>>;
+					if (JSON.stringify(currentScore) != JSON.stringify(parsed))
+						// if both are equal we do not need to do anythhing.
+						override = {
+							currentScore,
+							newScore: parsed
+						};
+				}
+			}
+		}
+	}
+
+	let override:
+		| undefined
+		| {
+				currentScore: ScoreData & Required<Pick<ScoreData, 'id'>>;
+				newScore: ScoreData & Required<Pick<ScoreData, 'id'>>;
+		  };
+
+	function loadCurrentId() {
+		const currentId = $page.url.searchParams.get('id');
+		console.warn('id', currentId);
+		if (currentId) {
+			const data = window.localStorage.getItem(`book-${currentId}`);
+			if (data) {
+				book = JSON.parse(data) ?? { ...newBook(), id: currentId };
+			} else {
+				book = { ...newBook(), id: currentId };
+			}
+		} else {
+			book =
+				(allBooks[0]
+					? JSON.parse(window.localStorage.getItem(`book-${allBooks[0].id}`)!)
+					: undefined) ?? newBook();
+			goto(`?id=${book.id}`);
+		}
+	}
+
 	$effect(() => {
-		if (browser && book) window.localStorage.setItem('book', JSON.stringify(book));
+		if (browser && book) {
+			window.localStorage.setItem(`book-${book.id}`, JSON.stringify(book));
+			loadAllBooks();
+		}
 	});
 </script>
 
@@ -97,7 +181,7 @@
 						title: {
 							name: "'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif",
 							size: 21
-						},
+						}
 					}
 				});
 			}}><Icon icon={scoreIcon} /></button
@@ -126,11 +210,72 @@
 	</div>
 {/snippet}
 
+<dialog open={override != undefined}>
+	{#if override != undefined}
+		{#if override.currentScore.reference && override.currentScore.reference.source == override.newScore.reference?.source && override.currentScore.reference.no == override.newScore.reference?.no && override.currentScore.title == override.newScore.title}
+			{getTitle(override.currentScore)}
+		{:else}
+			{getTitle(override.currentScore)} => {getTitle(override.newScore)}
+			<!-- lied hat gleiche Titel-->
+		{/if}
+
+		{#if override.currentScore.abc != override.newScore.abc}
+			Noten haben sich geändert.
+		{:else}
+			Noten sind gleichgeblieben.
+		{/if}
+
+		{#each Array.from( { length: Math.max(override.currentScore.lyrics.length, override.newScore.lyrics.length) } ) as _, i}
+			{#if override.currentScore.lyrics.length < i && override.newScore.lyrics.length < i}
+				{#if override.currentScore.lyrics[i] != override.newScore.lyrics[i]}
+					Strophe {i + 1} wurde geändert.
+				{/if}
+			{:else if override.currentScore.lyrics.length < i}
+				Strophe {i + 1} wurde gelöscht.
+			{:else}
+				Strophe {i + 1} wurde hinzugefügt.
+			{/if}
+		{/each}
+		<div role="group">
+			<button
+				class="outline"
+				onclick={()=>{storScore(override!.newScore, true); override==undefined}}
+				>Änderungen übernehmen</button
+			>
+			<button
+				class="outline"
+				onclick={() => {
+					override == undefined;
+				}}>Änderungen Verwerfen</button
+			>
+			<button
+				class="outline"
+				onclick={() => {storScore({...override!.newScore, id :uuidv4()}, true); override==undefined}}
+				>Neue Kopie erstellen</button
+			>
+		</div>
+	{/if}
+</dialog>
+
 <main>
 	<header>
 		<nav>
 			<ul>
 				<li><strong>Liedblat Generator</strong></li>
+			</ul>
+			<ul>
+				<select
+					onchange={async (e) => {
+						await goto(`?id=${allBooks[e.currentTarget.selectedIndex]?.id}`);
+						loadCurrentId();
+					}}
+				>
+					{#each allBooks as b}
+						<option selected={b.id == $page.url.searchParams.get('id')} value={b.id}
+							>{b.title}</option
+						>
+					{/each}
+				</select>
 			</ul>
 			<ul>
 				<!-- <li><a href="#">About</a></li>
@@ -143,10 +288,14 @@
 						}}>Drucken</a
 					>
 				</li>
+				<li>
+					<a href="export/scores">Lieder Exportieren</a>
+				</li>
 			</ul>
 		</nav>
 	</header>
 	<div id="edit">
+		<input type="text" bind:value={book.title} />
 		{@render add(-1)}
 
 		{#each elements as element, i}
@@ -226,7 +375,7 @@
 	</div>
 	<div id="view">
 		{#if source}
-			<Print {source} />
+			<Print {source} size="A5" />
 		{/if}
 		<!-- <div  bind:this={source}> -->
 		<div style="opacity: 0; height: 0; overflow: hidden;" data-hide-print="true" bind:this={source}>
@@ -350,6 +499,33 @@
 			background-color: lightgray;
 			// --background: lightgray;
 			// background-color: var(--background);
+		}
+	}
+
+	@media (max-width: 700px) {
+		main {
+			grid-template-rows: 100px auto auto;
+			grid-template-columns: 100%;
+			grid-template-areas:
+				'header'
+				'edit'
+				'view';
+			height: unset;
+			#view,
+			#edit {
+				width: calc(100vw - 20px);
+				min-width: calc(100vw - 20px);
+				max-width: calc(100vw - 20px);
+				padding: var(--pico-spacing);
+				overflow-y: unset;
+				overflow-x: hidden;
+			}
+			#view {
+				overflow-x: auto;
+			}
+		}
+		:root {
+			--pico-background-color: red;
 		}
 	}
 </style>

@@ -48,8 +48,9 @@
 			// const wrap: number[] = [2];
 			const tune = abcjs.renderAbc(scoreElement, abc, {
 				germanAlphabet: true,
-				staffwidth: 400,
+				staffwidth: score.width,
 				wrap: score.linesettings,
+				expandToWidest:true,
 				scale: score.scale,
 				oneSvgPerLine: true,
 				format: {
