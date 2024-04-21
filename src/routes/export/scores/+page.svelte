@@ -70,6 +70,9 @@
 	}
 </script>
 
+<div class="outer">
+
+
 <div id="menue">
 	<label>
 		QrCode Größe
@@ -99,6 +102,7 @@
 		</div>
 	</div>
 </div>
+</div>
 
 <style lang="scss">
 	#menue {
@@ -122,14 +126,15 @@
 		width: min-content;
 		padding: 1rem;
 	}
+	
 	.root {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 1rem;
 	}
-	:global(html) {
-		background-color: lightgray;
-	}
+	 :global(html):has(.outer) {
+	 	background-color: lightgray;
+	 }
 	figure {
 		width: min-content;
 	}
