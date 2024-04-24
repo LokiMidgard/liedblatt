@@ -1,0 +1,3 @@
+[submodule "dependencys/abcjs"]
+	path = dependencys/abcjs
+	url = https://github.com/LokiMidgard/abcjs.git
