@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import abcjs from 'abcjs';
+	import abcjs from 'abcjs-test2';
 	import { onMount } from 'svelte';
 	import 'abcjs/abcjs-audio.css';
 	import { getAbcFormat, type ScoreData, type ScoreElement } from '$lib/model/booklet';
